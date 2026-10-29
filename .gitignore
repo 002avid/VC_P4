@@ -42,3 +42,4 @@ x86/
 # Modelos descargados o entrenados
 *.pt
 P4/C0142.MP4
+*.mp4
