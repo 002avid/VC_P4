@@ -43,3 +43,6 @@ x86/
 *.pt
 P4/C0142.MP4
 *.mp4
+
+# Archivos de datos
+matriculas/
