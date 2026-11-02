@@ -53,6 +53,4 @@ matriculas/dataset_yolo/images/
 matriculas/dataset_yolo/labels/
 
 # Modelos descargados o entrenados
-P4/yolo11n.pt
-P4/yolo11n-pose.pt
 matriculas/runs/**/weights/last.pt
