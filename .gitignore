@@ -1,3 +1,4 @@
+
 # Archivos del sistema
 .DS_Store
 Thumbs.db
@@ -39,10 +40,19 @@ x86/
 *.swp
 *.bak
 
-# Modelos descargados o entrenados
-*.pt
+# Videos originales y generados
 P4/C0142.MP4
 *.mp4
 
-# Archivos de datos
-matriculas/
+# Dataset original de matriculas
+matriculas/images/
+matriculas/annotations/
+
+# Dataset convertido para YOLO
+matriculas/dataset_yolo/images/
+matriculas/dataset_yolo/labels/
+
+# Modelos descargados o entrenados
+P4/yolo11n.pt
+P4/yolo11n-pose.pt
+matriculas/runs/**/weights/last.pt
