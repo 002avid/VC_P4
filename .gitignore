@@ -54,3 +54,4 @@ matriculas/dataset_yolo/labels/
 
 # Modelos descargados o entrenados
 matriculas/runs/**/weights/last.pt
+matriculas/dataset_yolo/data.yaml
