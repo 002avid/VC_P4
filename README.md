@@ -138,11 +138,11 @@ En conjunto, las gráficas muestran que el modelo ha aprendido de forma progresi
 
 La precisión final, cercana al 0,87, es un resultado bueno, aunque no significa que el modelo consiga encontrar todas las matrículas. Para saber cuántas se le escapan también hay que tener en cuenta el *recall*, que se recoge en las métricas de validación.
 
-Una vez tenemos el detector entrenado, lo incorporamos al procesamiento del vídeo de tráfico. El objetivo es que, cuando se localice una matrícula, podamos extraer su contenido y mostrarlo sobre el propio vídeo.
+Una vez tenemos el detector entrenado, lo incorporamos al procesamiento del [vídeo de tráfico](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). El objetivo es que, cuando se localice una matrícula, podamos extraer su contenido y mostrarlo sobre el propio vídeo.
 
 Para ello, se mantiene el detector general de objetos y el seguimiento de vehículos utilizados en la primera parte. Además, se utiliza el modelo YOLO entrenado para localizar las matrículas en cada fotograma.
 
-Cuando se encuentra una matrícula, se recorta la región y se prepara la imagen antes de enviarla a EasyOCR. En este preprocesamiento se realizan los siguientes pasos:
+Cuando se encuentra una matrícula, se recorta la región y se prepara la imagen antes de enviarla a EasyOCR. En esta preparación se realizan los siguientes pasos:
 
 1. Se convierte el recorte a escala de grises para trabajar con la información de intensidad de la imagen.
 2. Se amplía cinco veces mediante interpolación cúbica, con la intención de facilitar la lectura de los caracteres.
@@ -150,21 +150,18 @@ Cuando se encuentra una matrícula, se recorta la región y se prepara la imagen
 4. Se envía el resultado a EasyOCR, limitando los caracteres posibles a números y letras mayúsculas.
 
 EasyOCR puede devolver varias lecturas para un mismo recorte. Cuando ocurre esto, se selecciona la que tiene una confianza mayor. El texto reconocido se muestra sobre el vídeo junto a la matrícula detectada.
- El resultado se guarda en un vídeo procesado, donde se pueden observar los vehículos, las matrículas localizadas y el texto reconocido por el OCR. Además, se genera el archivo `C0142_resultados_Ocr.csv`, que recoge información de las detecciones, como el fotograma, el tipo de objeto, la confianza, el identificador de seguimiento, las coordenadas y, cuando corresponde, el texto leído de la matrícula.
 
-### 7.3. Preparación del conjunto ara la evaluación OCR
+El resultado se guarda en un [vídeo](https://drive.google.com/file/d/1OGcTvxMkdin4ORqLh6psXltF3jeOfmgq/view?usp=drive_link), donde se pueden observar los vehículos, las matrículas y el texto. Además, se genera el archivo [`C0142_resultados_Ocr.csv`](P4b/C0142_resultados_Ocr.csv), que recoge información de las detecciones, como el fotograma, el tipo de objeto, la confianza, el identificador de seguimiento, las coordenadas y, cuando corresponde, el texto leído de la matrícula.
 
 [![Ver vídeo del resultado de detección de matrículas con EasyOCR](recursos/video_ocr.png)](https://drive.google.com/file/d/1OGcTvxMkdin4ORqLh6psXltF3jeOfmgq/view?usp=drive_link)
 
-Para comparar los dos modelos OCR necesitamos utilizar imágenes cuyo contenido real conozcamos. Por eso, se preparó un conjunto de datos a partir de las imágenes y anotaciones JSON de un conjunto de datos creado por la clase ya nombrado anteriormente, [acceso](https://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link).
+### 7.3. Preparación del conjunto ara la evaluación OCR
 
-De cada imagen original se extrae la región correspondiente a la matrícula y se guarda junto con el texto que aparece en su anotación. Durante este proceso se descartan las anotaciones que no contienen una matrícula válida, ya que no servirían para comprobar si el reconocimiento es correcto.
+Para comparar los dos modelos OCR necesitamos utilizar imágenes cuyo contenido real conozcamos. Por eso, se preparó un dataset más pequeño, 975 recortes de matriculas, a partir de las imágenes y anotaciones JSON de un conjunto de datos creado por la clase ya nombrado anteriormente, [acceso](https://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link).
 
-Después de este filtrado se obtiene un conjunto de **975 recortes de matrículas**, cada uno acompañado de su correspondiente texto real.
+Lo importante es que tanto EasyOCR como SmolVLM se evalúan utilizando exactamente estos mismos recortes y las mismas referencias. 
 
-Lo importante es que tanto EasyOCR como SmolVLM se evalúan utilizando exactamente estos mismos recortes y las mismas referencias. Así evitamos que las diferencias entre los resultados se deban a que un modelo haya recibido imágenes más fáciles que el otro.
-
-El archivo `matriculas_reales.csv` contiene la información de los recortes y las matrículas reales utilizadas durante la evaluación.
+El archivo [`matriculas_reales.csv`](P4b/matriculas_reales.csv) contiene la información de los recortes y las matrículas reales utilizadas durante la evaluación.
 
 ### 7.4. Evaluación de EasyOCR
 
@@ -185,9 +182,7 @@ Los resultados obtenidos son los siguientes:
 | Tiempo total | 30,78 s |
 | Tiempo medio por imagen | **31,57 ms** |
 
-El resultado más llamativo es que EasyOCR solo consigue reconocer correctamente 259 de las 975 matrículas. Esto supone un **26,56 % de aciertos exactos**, por lo que en bastantes imágenes se equivoca en uno o varios caracteres.
-
-También hay que tener en cuenta que 118 predicciones están vacías. Es decir, en esos casos EasyOCR no consigue devolver ningún texto. En el resto de las lecturas incorrectas sí obtiene algún resultado, pero no coincide completamente con la matrícula real.
+El resultado más llamativo es que EasyOCR solo consigue reconocer correctamente 259 de las 975 matrículas. Esto supone un **26,56 % de aciertos exactos**, por lo que en bastantes imágenes se equivoca en uno o varios caracteres. También hay que tener en cuenta que 118 predicciones están vacías.
 
 Para valorar los errores de una forma más detallada se utiliza el **Character Error Rate (CER)**. Esta métrica compara los caracteres reconocidos con los reales y tiene en cuenta los caracteres sustituidos, insertados o eliminados. Cuanto menor sea el CER, mejor es el resultado. En este caso se obtiene un **45,77 %**, lo que refleja las dificultades que ha tenido EasyOCR para leer correctamente las matrículas.
 
@@ -195,11 +190,9 @@ Donde sí destaca claramente es en la velocidad. Procesar los 975 recortes le ll
 
 ### 7.5. Evaluación de SmolVLM
 
-Como alternativa a EasyOCR, se prueba **SmolVLM-256M-Instruct**, un VLM con 256 millones de parámetros. A diferencia de un OCR tradicional, este modelo puede interpretar el contenido de una imagen y responder a una instrucción sobre ella.
+Como alternativa a EasyOCR, se prueba **SmolVLM-256M-Instruct**, un VLM con 256 millones de parámetros, la versión pequeña de SmolVLM. A diferencia de un OCR tradicional, este modelo puede interpretar el contenido de una imagen y responder a una instrucción sobre ella.
 
-En este caso, se le proporciona cada recorte junto con una indicación para que identifique los caracteres de la matrícula y devuelva el texto reconocido. Al igual que con EasyOCR, se utiliza el modelo preentrenado, sin realizar ningún entrenamiento adicional.
-
-La evaluación se realiza sobre los mismos 975 recortes, por lo que podemos comparar directamente sus resultados con los del apartado anterior.
+En este caso, se le proporciona cada recorte junto con una indicación (`prompt`) para que identifique los caracteres de la matrícula y devuelva el texto reconocido.
 
 Los resultados obtenidos son los siguientes:
 
@@ -225,8 +218,6 @@ Otro detalle es que SmolVLM devuelve alguna respuesta para los 975 recortes, por
 El principal inconveniente aparece al medir el tiempo. Procesar las 975 imágenes requiere **27 minutos y 18 segundos**, con una media de 1,68 segundos por recorte. Es un tiempo considerablemente mayor que el de EasyOCR, por lo que la mejora en reconocimiento tiene un coste importante en velocidad.
 
 ### 7.6. Comparación de resultados
-
-Una vez evaluados los dos modelos por separado, podemos comparar sus resultados. Para que la comparación sea justa, ambos han trabajado con los mismos 975 recortes y las mismas matrículas reales. Además, ninguno de los dos modelos ha recibido un entrenamiento adicional.
 
 Para valorar las diferencias nos fijamos principalmente en tres aspectos:
 
@@ -265,15 +256,15 @@ Las siguientes gráficas permiten ver de forma más clara las diferencias entre 
 
 #### Análisis de los resultados
 
-La diferencia más importante está en el reconocimiento de las matrículas completas. SmolVLM alcanza un Exact Match del **60,21 %**, mientras que EasyOCR se queda en el **26,56 %**. Esto supone una diferencia de 33,65 puntos porcentuales y, en términos absolutos, 328 matrículas reconocidas correctamente más.
+La diferencia más importante está en el reconocimiento de las matrículas completas. SmolVLM alcanza un Exact Match del **60,21 %**, mientras que EasyOCR se queda en el **26,56 %**. Esto supone una diferencia de 33,65 puntos porcentuales.
 
 También hay una diferencia considerable en el CER. SmolVLM obtiene un 15,58 %, frente al 45,77 % de EasyOCR. Por tanto, no solo consigue más lecturas completamente correctas, sino que, en general, también comete menos errores al reconocer los caracteres.
 
 Sin embargo, cuando miramos los tiempos ocurre justo lo contrario. EasyOCR necesita una media de 31,57 milisegundos por imagen, mientras que SmolVLM tarda 1,68 segundos. En otras palabras, **SmolVLM tarda aproximadamente 53 veces más** en procesar cada recorte.
 
-Esto deja bastante clara la diferencia entre los dos enfoques. EasyOCR es mucho más rápido, pero tiene bastantes dificultades para leer correctamente las matrículas de este conjunto de imágenes. SmolVLM obtiene resultados de reconocimiento notablemente mejores, aunque su tiempo de procesamiento es mucho mayor.
+EasyOCR es mucho más rápido, pero tiene bastantes dificultades para leer correctamente las matrículas de este conjunto de imágenes. SmolVLM obtiene resultados de reconocimiento notablemente mejores, aunque su tiempo de procesamiento es mucho mayor.
 
-Por tanto, no hay un ganador en todos los aspectos. Si lo más importante es procesar muchas imágenes rápidamente, EasyOCR resulta más conveniente. En cambio, si se prioriza conseguir lecturas más correctas y se puede asumir un mayor tiempo de espera, SmolVLM ofrece mejores resultados en esta evaluación.
+Por tanto, no hay un claro ganador en todos los aspectos. Si lo más importante es procesar muchas imágenes rápidamente, EasyOCR resulta más conveniente. En cambio, si se prioriza conseguir lecturas más correctas y se puede asumir un mayor tiempo de espera, SmolVLM ofrece mejores resultados en esta evaluación.
 
 #### Especificaciones del equipo
 
@@ -287,12 +278,10 @@ Las pruebas se han realizado utilizando el siguiente equipo:
 | PyTorch | 2.4.1 |
 | CUDA | 12.1 |
 
-### 8. Conclusión
-
-
-
 ### 9. Bibliografía y enlaces de interes
 
 [Acceso a todos los vídeos creados durante la práctica](https://drive.google.com/drive/folders/1FJGJGkTo87uCqMuZWZ0ne6dZ1KV74765?usp=drive_link)
+
 [ChatGPT](https://chatgpt.com/): utilizado para comprobaciones de errores ortográficos y gramaticales.
+
 [Claude](https://claude.ai/): utilizado para realizar resúmenes, explicaciones y ejemplos cortos sobre la documentación de los paquetes.
