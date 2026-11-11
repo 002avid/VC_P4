@@ -109,13 +109,3 @@ Este archivo recoge información de las detecciones realizadas durante el proces
 - Información asociada a la matrícula localizada.
 
 El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí](P4/C0142_resultados.csv).
-
-## 7. Conclusiones
-
-Durante el desarrollo de esta parte de la práctica se ha implementado un sistema capaz de detectar y realizar el seguimiento de diferentes objetos presentes en vídeos de tráfico.
-
-Además de la detección general, se han incorporado funcionalidades para analizar el sentido de circulación y contabilizar los objetos que se acercan o se alejan. También se han desarrollado dos métodos para localizar matrículas, lo que permite comparar un enfoque basado en un modelo entrenado con otro basado en operaciones tradicionales de procesamiento de imágenes.
-
-Por último, se ha añadido la posibilidad de anonimizar matrículas y personas, así como generar archivos CSV con información de las detecciones.
-
-Los resultados obtenidos permiten comprobar las posibilidades de estas técnicas para el análisis de vídeos de tráfico, así como las diferencias entre los métodos utilizados para localizar matrículas.
