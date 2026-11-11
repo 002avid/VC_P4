@@ -2,7 +2,7 @@
 
 ## 1. Introducción
 
-En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo][C0142.MP4].
+En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo](C0142.MP4).
 
 Para ello, se utiliza YOLO como modelo de detección de objetos, tanto mediante un modelo preentrenado como mediante uno entrenado específicamente para localizar matrículas. Además, se incorporan diferentes funcionalidades para analizar el sentido de circulación, contabilizar los objetos detectados y anonimizar determinadas regiones de los vídeos.
 
@@ -108,7 +108,7 @@ Este archivo recoge información de las detecciones realizadas durante el proces
 - Coordenadas de la región detectada.
 - Información asociada a la matrícula localizada.
 
-El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí][C0142_resultados.csv].
+El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí](C0142_resultados.csv).
 
 ## 7. Conclusiones
 
