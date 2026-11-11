@@ -8,6 +8,10 @@ Para ello, se utiliza YOLO como modelo de detección de objetos, tanto mediante 
 
 Además, el sistema permite trabajar con dos métodos para localizar matrículas: un modelo YOLO entrenado con un conjunto de imágenes anotadas y un método basado en el análisis de contornos mediante OpenCV.
 
+Por otro lado, la segunda parte de la práctica se da un paso más, además de localizar las matrículas de los vehículos, queremos conseguir leer los caracteres que aparecen en ellas.
+
+Durante la realización se aprovecha el detector YOLO desarrollado anteriormente y se incorporan modelos de reconocimiento de texto (OCR). Este apartado se divide en dos partes. Primero, se integra EasyOCR en el procesamiento en el [vídeo de tráfico](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link), ya nombrado anteriormente, para intentar reconocer las matrículas y guardar los resultados. Después, se prepara un conjunto de recortes de matrículas con sus textos reales para comparar EasyOCR con otro modelo, SmolVLM.
+
 ## 2. Detección y seguimiento de objetos
 
 Para la detección de los elementos presentes en el vídeo se utiliza el modelo **YOLO11n**, que permite identificar tres clases de objetos:
@@ -16,9 +20,7 @@ Para la detección de los elementos presentes en el vídeo se utiliza el modelo 
 - Bicicletas.
 - Coches.
 
-A partir de las detecciones, se realiza el seguimiento de los objetos a lo largo de los fotogramas. De esta manera, se mantiene un identificador para cada elemento y se puede seguir su movimiento durante el vídeo.
-
-Esta información también permite evitar que un mismo objeto sea contabilizado varias veces cuando aparece en diferentes fotogramas.
+A partir de las detecciones, se realiza el seguimiento de los objetos a lo largo de los fotogramas. De esta manera, se mantiene un identificador para cada elemento y se puede seguir su movimiento durante el vídeo. Esta información también permite evitar que un mismo objeto sea contabilizado varias veces cuando aparece en diferentes fotogramas.
 
 ## 3. Análisis del sentido de circulación
 
@@ -40,9 +42,9 @@ Se utiliza un modelo YOLO11n como punto de partida, que posteriormente se entren
 
 El conjunto de datos se organiza separando las imágenes en tres particiones:
 
-- **Train:** imágenes utilizadas durante el entrenamiento.
-- **Validation:** imágenes utilizadas para comprobar el comportamiento del modelo durante el entrenamiento.
-- **Test:** imágenes reservadas para evaluar el modelo una vez finalizado el entrenamiento.
+- **Train:** imágenes utilizadas durante el entrenamiento (70%).
+- **Validation:** imágenes utilizadas para comprobar el comportamiento del modelo durante el entrenamiento (20%).
+- **Test:** imágenes reservadas para evaluar el modelo una vez finalizado el entrenamiento (10%).
 
 El conjunto de datos contiene una única clase, denominada `matricula`.
 
@@ -63,9 +65,7 @@ Una vez terminado el entrenamiento, se utiliza el mejor modelo obtenido (`best.p
 
 ### 4.2. Detección mediante contornos
 
-Como alternativa al modelo entrenado, se ha implementado un método de detección basado en operaciones de procesamiento de imágenes con OpenCV.
-
-En este caso, primero se localizan los coches mediante YOLO11n y, posteriormente, se analiza individualmente la región de cada vehículo para intentar localizar su matrícula.
+Como alternativa al modelo entrenado, se ha implementado un método de detección basado en operaciones de procesamiento de imágenes con OpenCV. En este caso, primero se localizan los coches mediante YOLO11n y, posteriormente, se analiza individualmente la región de cada vehículo para intentar localizar su matrícula.
 
 El procedimiento aplicado es el siguiente:
 
@@ -75,17 +75,17 @@ El procedimiento aplicado es el siguiente:
 4. Se aplica una operación morfológica de cierre para unir regiones próximas.
 5. Se extraen los contornos y se analizan sus dimensiones y proporciones.
 
-Finalmente, se seleccionan los candidatos que cumplen determinados criterios geométricos, como el ancho, el alto, la relación de aspecto y el área.
+Finalmente, se seleccionan los candidatos que cumplen determinados criterios, como el ancho, el alto, la relación de aspecto y el área.
 
 [![Ver vídeo de la detección de matrículas por contorno](recursos/contorno.png)](https://drive.google.com/file/d/1MFGXNq1IREiWNRUBbVmPf3CbteWJaglQ/view?usp=drive_link)
 
-Este método permite localizar algunas matrículas, aunque sus resultados son menos consistentes que los obtenidos mediante el modelo entrenado. Esto se debe principalmente a que otras partes del vehículo, como elementos de la carrocería o sombras, pueden presentar características geométricas similares a las de una matrícula.
+Este método permite localizar muy pocas matrículas, ya que sus resultados son menos consistentes que los obtenidos mediante el modelo entrenado. Esto se debe principalmente a que otras partes del vehículo, como elementos de la carrocería o sombras, pueden presentar características geométricas similares a las de una matrícula.
+
+A la hora de ejecutar el programa, aparecerá una caja de texto en la que el usuario debe decidir si la detección se hará por contornos o no. Debido a este sistema de preguntas al usuario, es posible tener muchas funcionalidades diferentes en un código compacto.
 
 ## 5. Anonimización de matrículas y personas
 
-También se ha incorporado una funcionalidad de anonimización que permite aplicar un desenfoque gaussiano sobre las regiones de las matrículas y las personas detectadas.
-
-A la hora de ejecutar el programa, aparecerá una caja de texto en la que el usuario debe decidir si la detección se hará por contornos o no. Debido a este sistema de preguntas al usuario, es posible tener muchas funcionalidades diferentes en un código compacto.
+También se ha incorporado una funcionalidad de anonimización que permite aplicar un desenfoque gaussiano sobre las regiones correspondientes a las matrículas y las personas detectadas. Para utilizarla, cuando el programa pregunte si se desea aplicar el análisis de contornos, se deberá responder `n`. A continuación, se preguntará si se desea anonimizar las personas y las matrículas detectadas.
 
 Para las matrículas se utiliza el modelo entrenado, mientras que las personas se localizan mediante el modelo YOLO11n general. Una vez obtenidas las regiones correspondientes, se aplica un desenfoque gaussiano con un tamaño de kernel de 51 × 51 y una desviación estándar de 30.
 
@@ -110,17 +110,13 @@ Este archivo recoge información de las detecciones realizadas durante el proces
 
 El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí](P4/C0142_resultados.csv).
 
-## 7. P4b – Reconocimiento de caracteres en matrículas
+Al realizar una inspección sobre el documento, se observa que sólo consigue detectar correctamente 2 matrículas.
 
-En esta segunda parte de la práctica se da un paso más, además de localizar las matrículas de los vehículos, queremos conseguir leer los caracteres que aparecen en ellas.
-
-Para ello, se aprovecha el detector YOLO desarrollado anteriormente y se incorporan modelos de reconocimiento de texto (OCR). El trabajo se divide en dos partes. Primero, se integra EasyOCR en el procesamiento en el [vídeo de tráfico](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link), ya nombrado anteriormente, para intentar reconocer las matrículas y guardar los resultados. Después, se prepara un conjunto de recortes de matrículas con sus textos reales para comparar EasyOCR con otro modelo, SmolVLM.
-
-De esta forma, no solo podemos comprobar cómo funciona el reconocimiento en un vídeo real, sino también comparar ambos modelos utilizando exactamente las mismas imágenes.
+## 7. – Reconocimiento de caracteres en matrículas
 
 ### 7.1. Entrenamiento del detector de matrículas
 
-Antes de poder leer los caracteres, necesitamos localizar correctamente las matrículas dentro de cada imagen. Para ello, se entrenó un detector **YOLO11n** utilizando un conjunto de imágenes anotadas. En este caso, solo se utiliza una clase, `matricula`, ya que lo que nos interesa es encontrar la posición de las placas, independientemente del vehículo al que pertenezcan.
+Antes de poder leer los caracteres, necesitamos localizar correctamente las matrículas dentro de cada imagen. Para ello, se entrenó un detector **YOLO11n** utilizando un conjunto de imágenes anotadas. En este caso, solo se utiliza una clase, `matricula`.
 
 El entrenamiento se realizó durante **100 épocas**, con imágenes de tamaño 640x640. Durante este proceso, el modelo va comparando las cajas que predice con las anotaciones reales y ajusta sus parámetros para mejorar las detecciones. Al terminar, se seleccionaron los mejores pesos (`best.pt`), que son los que se utilizan posteriormente en el procesamiento del vídeo.
 
@@ -132,15 +128,13 @@ Para hacernos una idea de cómo ha aprendido el modelo, vamos a fijarnos en tres
 |---|---|
 | <img src="recursos/perdida_entrenamiento.png" width="220"> | Esta gráfica muestra el error que comete el modelo al localizar las matrículas. Concretamente, `box_loss` mide la diferencia entre las cajas que predice y las que aparecen en las anotaciones reales, teniendo en cuenta su posición y tamaño. Al principio el valor se encuentra alrededor de 2,0 y va bajando progresivamente hasta situarse cerca de 1,2 al final. Es una evolución favorable, ya que significa que el modelo va ajustando mejor la posición y las dimensiones de las matrículas. Además, la curva sigue bajando hasta la última época, aunque las mejoras son más pequeñas que al principio. |
 | **Precisión** | |
-| <img src="recursos/precision.png" width="220"> | La precisión indica qué parte de las detecciones realizadas por el modelo son realmente matrículas. Por ejemplo, un valor de 0,85 significa que aproximadamente el 85 % de las detecciones son correctas. En la gráfica se aprecia una mejora bastante rápida durante las primeras épocas: se pasa de valores cercanos a 0,57 a superar el 0,8. Después aparecen algunas oscilaciones, pero la tendencia sigue siendo ascendente y termina alrededor de 0,87. Esto indica que el modelo ha aprendido a evitar mejor las detecciones falsas y que, cuando señala una posible matrícula, cada vez es más probable que haya acertado. |
+| <img src="recursos/precision.png" width="220"> | La precisión indica qué parte de las detecciones realizadas por el modelo son realmente matrículas. Por ejemplo, un valor de 0,85 significa que aproximadamente el 85 % de las detecciones son correctas. En la gráfica se aprecia una mejora bastante rápida durante las primeras épocas, se pasa de valores cercanos a 0,57 a superar el 0,8. Después aparecen algunas oscilaciones, pero la tendencia sigue siendo ascendente y termina alrededor de 0,87. Esto indica que el modelo ha aprendido a evitar mejor las detecciones falsas y que, cuando señala una posible matrícula, cada vez es más probable que haya acertado. |
 | **Calidad de detección (mAP@0.5)** | |
 | <img src="recursos/calidad_deteccion.png" width="220"> | Esta métrica permite valorar la calidad general de las detecciones. Para calcularla se tiene en cuenta si el modelo encuentra las matrículas y si las cajas que dibuja coinciden suficientemente con las anotaciones reales. En concreto, se considera que una detección es correcta cuando la coincidencia entre ambas cajas (IoU) es de al menos un 50 %. En la gráfica se observa una mejora progresiva, especialmente al principio, hasta que los valores empiezan a estabilizarse. Esto indica que el modelo ha ido mejorando tanto al encontrar las matrículas como al delimitar su posición. |
 
 #### Conclusiones del entrenamiento
 
-En conjunto, las gráficas muestran que el modelo ha aprendido de forma progresiva. El error al localizar las matrículas disminuye durante todo el entrenamiento, mientras que la precisión y la calidad de las detecciones mejoran considerablemente respecto a las primeras épocas.
-
-También se aprecia que las mayores mejoras se producen al principio. A partir de ahí, los resultados se van estabilizando y los avances son más pequeños. Esto es bastante habitual cuando el modelo ya ha aprendido buena parte de las características que necesita para realizar las detecciones.
+En conjunto, las gráficas muestran que el modelo ha aprendido de forma progresiva. El error al localizar las matrículas disminuye durante todo el entrenamiento, mientras que la precisión y la calidad de las detecciones mejoran considerablemente respecto a las primeras épocas. También se aprecia que las mayores mejoras se producen al principio. A partir de ahí, los resultados se van estabilizando y los avances son más pequeños. Esto es bastante habitual cuando el modelo ya ha aprendido buena parte de las características que necesita para realizar las detecciones.
 
 La precisión final, cercana al 0,87, es un resultado bueno, aunque no significa que el modelo consiga encontrar todas las matrículas. Para saber cuántas se le escapan también hay que tener en cuenta el *recall*, que se recoge en las métricas de validación.
 
@@ -172,7 +166,7 @@ Lo importante es que tanto EasyOCR como SmolVLM se evalúan utilizando exactamen
 
 El archivo `matriculas_reales.csv` contiene la información de los recortes y las matrículas reales utilizadas durante la evaluación.
 
-### 7.4. Evaluación de EasyOCR]()
+### 7.4. Evaluación de EasyOCR
 
 El primer modelo que se evalúa es **EasyOCR**, una herramienta de reconocimiento óptico de caracteres que permite extraer texto directamente de una imagen. Se utiliza el modelo preentrenado, sin realizar ningún entrenamiento adicional.
 
@@ -300,6 +294,5 @@ Las pruebas se han realizado utilizando el siguiente equipo:
 ### 9. Bibliografía y enlaces de interes
 
 [Acceso a todos los vídeos creados durante la práctica](https://drive.google.com/drive/folders/1FJGJGkTo87uCqMuZWZ0ne6dZ1KV74765?usp=drive_link)
-[Acceso al dataset de matrículas utilizado con sus anotaciones](https://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link)
 [ChatGPT](https://chatgpt.com/): utilizado para comprobaciones de errores ortográficos y gramaticales.
 [Claude](https://claude.ai/): utilizado para realizar resúmenes, explicaciones y ejemplos cortos sobre la documentación de los paquetes.
