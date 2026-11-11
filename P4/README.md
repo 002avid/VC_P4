@@ -2,7 +2,7 @@
 
 ## 1. Introducción
 
-En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo][P4/C0142.MP4].
+En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo][C0142.MP4].
 
 Para ello, se utiliza YOLO como modelo de detección de objetos, tanto mediante un modelo preentrenado como mediante uno entrenado específicamente para localizar matrículas. Además, se incorporan diferentes funcionalidades para analizar el sentido de circulación, contabilizar los objetos detectados y anonimizar determinadas regiones de los vídeos.
 
@@ -28,7 +28,7 @@ Para ello, se establecen líneas de referencia sobre el vídeo y se analiza cóm
 
 Se mantienen contadores independientes para personas, bicicletas y coches, permitiendo obtener un resumen del tráfico observado.
 
-[![Ver vídeo del análisis del sentido de la circulación](P4/screenshots/direccion.png)](https://youtu.be/WwEh3FGJKew)
+[![Ver vídeo del análisis del sentido de la circulación](screenshots/direccion.png)](https://youtu.be/WwEh3FGJKew)
 
 ## 4. Detección de matrículas
 
@@ -59,7 +59,7 @@ La configuración utilizada durante el entrenamiento es la siguiente:
 
 Una vez terminado el entrenamiento, se utiliza el mejor modelo obtenido (`best.pt`) para realizar las detecciones.
 
-[![Ver vídeo de la detección de matrículas por entrenamiento](P4/screenshots/normal.png)](https://youtu.be/iueVzUw2xkE)
+[![Ver vídeo de la detección de matrículas por entrenamiento](screenshots/normal.png)](https://youtu.be/iueVzUw2xkE)
 
 ### 4.2. Detección mediante contornos
 
@@ -77,7 +77,7 @@ El procedimiento aplicado es el siguiente:
 
 Finalmente, se seleccionan los candidatos que cumplen determinados criterios geométricos, como el ancho, el alto, la relación de aspecto y el área.
 
-[![Ver vídeo de la detección de matrículas por contorno](P4/screenshots/contorno.png)](https://youtu.be/3KYjnE9uo2M)
+[![Ver vídeo de la detección de matrículas por contorno](screenshots/contorno.png)](https://youtu.be/3KYjnE9uo2M)
 
 Este método permite localizar algunas matrículas, aunque sus resultados son menos consistentes que los obtenidos mediante el modelo entrenado. Esto se debe principalmente a que otras partes del vehículo, como elementos de la carrocería o sombras, pueden presentar características geométricas similares a las de una matrícula.
 
@@ -93,7 +93,7 @@ En el caso de las matrículas, también se relacionan las detecciones con los ve
 
 Cuando se detectan varias matrículas asociadas a un mismo coche, se selecciona la que presenta una mayor confianza.
 
-[![Ver vídeo de anonimización de coches y personas](P4/screenshots/blur.png)](https://youtu.be/BtFYkFFO_zY)
+[![Ver vídeo de anonimización de coches y personas](screenshots/blur.png)](https://youtu.be/BtFYkFFO_zY)
 
 ## 6. Archivo CSV
 
@@ -108,7 +108,7 @@ Este archivo recoge información de las detecciones realizadas durante el proces
 - Coordenadas de la región detectada.
 - Información asociada a la matrícula localizada.
 
-El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí][P4/C0142_resultados.csv].
+El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí][C0142_resultados.csv].
 
 ## 7. Conclusiones
 
