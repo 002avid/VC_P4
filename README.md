@@ -2,7 +2,7 @@
 
 ## 1. Introducción
 
-En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link).
+En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). Se recomienda dar clic a las imágenes proporcionadas, ya que dirigen directamente al vídeo correspondiente de cada apartado.
 
 Para ello, se utiliza YOLO como modelo de detección de objetos, tanto mediante un modelo preentrenado como mediante uno entrenado específicamente para localizar matrículas. Además, se incorporan diferentes funcionalidades para analizar el sentido de circulación, contabilizar los objetos detectados y anonimizar determinadas regiones de los vídeos.
 
@@ -294,3 +294,12 @@ Las pruebas se han realizado utilizando el siguiente equipo:
 | CUDA | 12.1 |
 
 ### 8. Conclusión
+
+
+
+### 9. Bibliografía y enlaces de interes
+
+[Acceso a todos los vídeos creados durante la práctica](https://drive.google.com/drive/folders/1FJGJGkTo87uCqMuZWZ0ne6dZ1KV74765?usp=drive_link)
+[Acceso al dataset de matrículas utilizado con sus anotaciones](https://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link)
+[ChatGPT](https://chatgpt.com/): utilizado para comprobaciones de errores ortográficos y gramaticales.
+[Claude](https://claude.ai/): utilizado para realizar resúmenes, explicaciones y ejemplos cortos sobre la documentación de los paquetes.
