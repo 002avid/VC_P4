@@ -62,13 +62,14 @@ matriculas/dataset_yolo/images/
 matriculas/dataset_yolo/labels/
 
 # Modelos descargados o entrenados
-*.pt
 *.onnx
 *.engine
 
-# Resultados del entrenamiento
-# Ignorar los pesos del modelo
-matriculas/runs/**/weights/
+# Ignorar los pesos de entrenamiento
+matriculas/runs/**/weights/*.pt
+
+# Conservar el mejor modelo
+!matriculas/runs/train_val_matriculas/weights/best.pt
 
 # Archivos generados para OCR
 P4b/images_recortadas/
