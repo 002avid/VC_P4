@@ -13,7 +13,7 @@ Desktop.ini
 *.userosscache
 *.sln.docstates
 
-# Compilación C/C++
+# Compilacion C/C++
 build/
 cmake-build-*/
 CMakeFiles/
@@ -40,8 +40,17 @@ x86/
 *.swp
 *.bak
 
+# Python
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Entornos virtuales
+.venv/
+venv/
+env/
+
 # Videos originales y generados
-P4/C0142.MP4
 *.mp4
 
 # Dataset original de matriculas
@@ -53,5 +62,13 @@ matriculas/dataset_yolo/images/
 matriculas/dataset_yolo/labels/
 
 # Modelos descargados o entrenados
-matriculas/runs/**/weights/last.pt
-matriculas/dataset_yolo/data.yaml
+*.pt
+*.onnx
+*.engine
+
+# Resultados del entrenamiento
+# Ignorar los pesos del modelo
+matriculas/runs/**/weights/
+
+# Archivos generados para OCR
+P4b/images_recortadas/
