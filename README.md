@@ -138,8 +138,6 @@ Para hacernos una idea de cómo ha aprendido el modelo, vamos a fijarnos en tres
 
 Las gráficas muestran que el modelo ha aprendido de forma progresiva. El error al localizar las matrículas disminuye durante todo el entrenamiento, mientras que la precisión y la calidad de las detecciones mejoran bastante respecto a las primeras épocas. También se aprecia que las mayores mejoras se producen al principio. A partir de ahí, los resultados se van estabilizando y los avances son más pequeños. Este es el comportamiento esperado, ya que el modelo ya ha aprendido buena parte de las características que necesita para realizar las detecciones.
 
-La precisión final de 0,87 es un buen resultado, aunque no significa que el modelo consiga encontrar todas las matrículas. Para saber cuántas no se detectan correctamente, se puede observar el *recall*, que se recoge en las métricas de validación.
-
 Una vez tenemos el detector entrenado, lo incorporamos al procesamiento del [vídeo de tráfico](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). El objetivo es que, cuando se localice una matrícula, podamos extraer su contenido y mostrarlo sobre el propio vídeo.
 
 Para ello, se mantiene el detector general de objetos y el seguimiento de vehículos utilizados en la primera parte. Además, se utiliza el modelo YOLO entrenado para localizar las matrículas en cada fotograma.
