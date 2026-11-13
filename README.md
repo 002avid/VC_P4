@@ -12,6 +12,19 @@ Por otro lado, en la segunda parte de la práctica se da un paso más. Además d
 
 Durante la realización se aprovecha el detector YOLO desarrollado anteriormente y se incorporan modelos de reconocimiento de texto (OCR). Este apartado se divide en dos partes. Primero, se integra EasyOCR en el procesamiento en el [vídeo de tráfico](https://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link), ya nombrado anteriormente, para intentar reconocer las matrículas y guardar los resultados. Después, se prepara un conjunto de recortes de matrículas con sus textos reales para comparar EasyOCR con otro modelo, SmolVLM.
 
+## 2. Instalaciones necesarias
+
+Para ejecutar los cuadernos del proyecto es necesario disponer de Python y Jupyter Notebook, además de instalar las librerías utilizadas para el procesamiento de imágenes, detección de objetos y reconocimiento de matrículas.
+
+```bash
+conda create --name VC_P4 python=3.9.5
+conda activate VC_P4
+pip install ultralytics
+pip install lap
+pip install transformers
+pip install easyocr
+```
+
 ## 2. Detección y seguimiento de objetos
 
 Para la detección de los elementos presentes en el vídeo se utiliza el modelo **YOLO11n**, que permite identificar tres clases de objetos: personas, bicicletas, y coches.
