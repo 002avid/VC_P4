@@ -85,31 +85,25 @@ Para hacernos una idea de cómo ha aprendido el modelo, vamos a fijarnos en las 
 
 | Pérdida de localización | |
 |---|---|
-| <img src="recursos/perdida_entrenamiento.png" width="220"> | Representa el error cometido al localizar las matrículas durante el entrenamiento. Su descenso progresivo indica que el modelo mejora la precisión de las cajas delimitadoras. |
+| <img src="recursos/perdida_entrenamiento.png" width="220"> | Representa el error cometido al localizar las matrículas durante el entrenamiento, comparando las cajas delimitadoras predichas con las anotaciones reales. Su descenso progresivo indica que el modelo mejora la precisión con la que delimita las matrículas. Las pequeñas fluctuaciones que aparecen durante el proceso son normales. |
 | Pérdida de clasificación | |
-|---|---|
-| <img src="recursos/train clsLoss.png" width="220"> | Mide el error al clasificar los objetos detectados. Disminuye rápidamente durante las primeras épocas y continúa reduciéndose progresivamente. |
+| <img src="recursos/train clsLoss.png" width="220"> | Mide el error cometido al clasificar los objetos detectados. Se observa una caída muy pronunciada durante las primeras épocas, seguida de una reducción más gradual. Esto indica que el modelo aprende rápidamente a reconocer la clase y continúa mejorando a medida que avanza el entrenamiento. |
 | Distribution Focal Loss | |
-|---|---|
-| <img src="recursos/train dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las coordenadas de las cajas delimitadoras. Su descenso indica una mejora progresiva en la localización de las matrículas. |
+| <img src="recursos/train dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las coordenadas de las cajas delimitadoras. Su evolución descendente indica que el modelo va ajustando progresivamente la localización de las matrículas. Al igual que ocurre con box_loss, las pequeñas oscilaciones no impiden observar una tendencia de mejora. |
 | Precisión | |
-| <img src="recursos/precision.png" width="220"> | Mide qué proporción de las detecciones realizadas por el modelo son correctas. Aumenta progresivamente hasta alcanzar valores cercanos al 0,88, lo que indica una baja proporción de falsas detecciones. |
+| <img src="recursos/precision.png" width="220"> | Indica qué proporción de las detecciones realizadas por el modelo son correctas. La gráfica muestra un aumento progresivo hasta alcanzar valores cercanos al 0,88. Esto significa que la mayoría de las matrículas detectadas corresponden a detecciones válidas, con una proporción relativamente baja de falsos positivos. |
 | Exhaustividad | |
-|---|---|
-| <img src="recursos/recall.png" width="220"> | Mide qué proporción de las matrículas reales consigue detectar el modelo. Mejora durante el entrenamiento, aunque se mantiene por debajo de la precisión, indicando que todavía se escapan algunas matrículas. |
+| <img src="recursos/recall.png" width="220"> | Mide qué proporción de las matrículas presentes en las imágenes consigue detectar el modelo. Su valor aumenta progresivamente hasta situarse cerca del 0,58. Aunque muestra una evolución positiva, su diferencia respecto a la precisión indica que todavía existen matrículas reales que el modelo no consigue detectar. |
 | Pérdida de localización en validación | |
-|---|---|
-| <img src="recursos/val boxLoss.png" width="220"> | Representa el error de localización sobre las imágenes de validación. Su tendencia descendente indica que el modelo mejora su capacidad de localizar matrículas en imágenes que no utiliza para entrenar. |
+| <img src="recursos/val boxLoss.png" width="220"> | Representa el error de localización obtenido al evaluar el modelo sobre el conjunto de validación, que contiene imágenes no utilizadas directamente para actualizar sus parámetros durante el entrenamiento. Su descenso indica que el modelo también mejora la localización de matrículas en estos datos. La evolución es similar a la observada en el conjunto de entrenamiento. |
 | Pérdida de clasificación en validación | |
-|---|---|
-| <img src="recursos/val clsLoss.png" width="220"> | Muestra el error de clasificación sobre el conjunto de validación. Disminuye progresivamente, siguiendo una evolución similar a la pérdida de clasificación del entrenamiento. |
+| <img src="recursos/val clsLoss.png" width="220"> | Muestra el error de clasificación sobre el conjunto de validación. Se observa una reducción pronunciada durante las primeras épocas y un descenso más gradual posteriormente. Esta evolución refleja una mejora en la capacidad del modelo para clasificar correctamente las detecciones en imágenes diferentes a las de entrenamiento. |
 | Distribution Focal Loss en validación | |
-|---|---|
-| <img src="recursos/val dflLoss.png" width="220"> | Mide el error en la precisión de las cajas delimitadoras sobre el conjunto de validación. Su reducción indica una mejora en la localización de las matrículas. |
+| <img src="recursos/val dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las cajas delimitadoras sobre el conjunto de validación. Su tendencia descendente indica que el modelo mejora progresivamente la localización de las matrículas también en estos datos. Su comportamiento es similar al de las pérdidas de localización del entrenamiento. |
 | Calidad de detección (mAP@0.5) | |
-| <img src="recursos/calidad_deteccion.png" width="220"> | Evalúa el rendimiento global del detector utilizando un umbral de coincidencia IoU de 0,50. Su aumento progresivo refleja una mejora en la capacidad general de detección. |
+| <img src="recursos/calidad_deteccion.png" width="220"> | Evalúa el rendimiento global del detector utilizando un umbral de coincidencia IoU de 0,50 entre las cajas predichas y las reales. La gráfica muestra un crecimiento progresivo hasta alcanzar aproximadamente un 0,57. Esto indica que el modelo mejora su capacidad general para detectar matrículas a lo largo del entrenamiento. |
 | Calidad de detección (mAP@0.5-0.95) | |
-| <img src="recursos/metrics MAP50-95.png" width="220"> | Evalúa el rendimiento utilizando distintos umbrales de coincidencia, desde 0,50 hasta 0,95. Es una métrica más exigente que mAP50 y permite valorar con mayor precisión la calidad de las detecciones. |
+| <img src="recursos/metrics MAP50-95.png" width="220"> | Evalúa el rendimiento utilizando distintos umbrales de coincidencia, desde 0,50 hasta 0,95, por lo que es una métrica más exigente que mAP50. Alcanza aproximadamente un 0,31 al finalizar el entrenamiento. Su valor inferior refleja la dificultad adicional de conseguir cajas delimitadoras que se ajusten con precisión a las matrículas. |
 
 #### Conclusiones del entrenamiento
 
