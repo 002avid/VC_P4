@@ -2,73 +2,70 @@
 
 ## 1. Introducción
 
-En esta práctica se desarrolla un sistema de visión por computador orientado al análisis y procesado de vídeos de tráfico. El objetivo principal es detectar y realizar el seguimiento de coches, personas, bicicletas y matrículas presentes en este [vídeo](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). Se recomienda dar clic a las imágenes proporcionadas, ya que dirigen directamente al vídeo correspondiente de cada apartado.
+En esta práctica hemos desarrollado un sistema de visión por computador para analizar vídeos de tráfico. Lo que buscamos es detectar y seguir coches, personas, bicicletas y matrículas en este [vídeo](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). Os recomendamos hacer clic en las imágenes que aparecen a lo largo del documento, ya que llevan directamente al vídeo de cada apartado.
 
-Para ello, se utiliza YOLO como modelo de detección de objetos, tanto mediante un modelo preentrenado como mediante uno entrenado específicamente para localizar matrículas. Además, se incorporan diferentes funcionalidades para analizar el sentido de circulación, contabilizar los objetos detectados y anonimizar determinadas regiones de los vídeos.
+Para ello usamos YOLO como modelo de detección de objetos, tanto en su versión preentrenada como en una entrenada por nosotros para localizar matrículas. Además, hemos añadido varias funcionalidades: analizar el sentido de circulación, contar los objetos detectados y anonimizar ciertas zonas de los vídeos.
 
-Además, el sistema permite trabajar con dos métodos para localizar matrículas: un modelo YOLO entrenado con un conjunto de imágenes anotadas y un método basado en el análisis de contornos mediante OpenCV.
+También se pueden usar dos métodos para localizar matrículas: un modelo YOLO entrenado con un conjunto de imágenes anotadas y otro basado en el análisis de contornos con OpenCV.
 
-Por otro lado, en la segunda parte de la práctica se da un paso más. Además de localizar las matrículas de los vehículos, queremos conseguir leer los caracteres que aparecen en ellas.
+En la segunda parte de la práctica damos un paso más. Ya no nos basta con localizar la matrícula de cada vehículo: queremos leer los caracteres que aparecen en ella.
 
-Durante la realización se aprovecha el detector YOLO desarrollado anteriormente y se incorporan modelos de reconocimiento de texto (OCR). Este apartado se divide en dos partes. Primero, se integra EasyOCR en el procesamiento en el [vídeo de tráfico](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link), ya nombrado anteriormente, para intentar reconocer las matrículas y guardar los resultados. Después, se prepara un conjunto de recortes de matrículas con sus textos reales para comparar EasyOCR con otro modelo, SmolVLM.
+Para esto aprovechamos el detector YOLO desarrollado antes y le incorporamos modelos de reconocimiento de texto (OCR). Este apartado tiene dos partes. Primero integramos EasyOCR en el procesamiento del [vídeo de tráfico](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link) que acabamos de mencionar, para intentar reconocer las matrículas y guardar los resultados. Después preparamos un conjunto de recortes de matrículas con sus textos reales para comparar EasyOCR con otro modelo, SmolVLM.
 
 ## 2. Instalaciones necesarias
 
-Es necesario instalar algunas librerías adicionales con respecto a los entornos indicados en los [README de la práctica 4](https\://github.com/otsedom/otsedom.github.io/tree/main/VC/P4) y de la [práctica 4b](https\://github.com/otsedom/otsedom.github.io/tree/main/VC/P4b), proporcionados por el profesor.
+Hay que instalar algunas librerías adicionales a las de los entornos que se indican en los [README de la práctica 4](https\://github.com/otsedom/otsedom.github.io/tree/main/VC/P4) y de la [práctica 4b](https\://github.com/otsedom/otsedom.github.io/tree/main/VC/P4b), que nos proporciona el profesor.
 
-En concreto, para ejecutar todos los apartados de la práctica se necesitan las siguientes dependencias:
+En concreto, para ejecutar todos los apartados necesitamos estas dependencias:
 
-- ****EasyOCR:**** para realizar el reconocimiento de caracteres en las matrículas mediante OCR.
+- ****EasyOCR:**** para reconocer los caracteres de las matrículas mediante OCR.
 
-- ****Transformers:**** para cargar y utilizar el modelo SmolVLM.
+- ****Transformers:**** para cargar y usar el modelo SmolVLM.
 
-Se pueden instalar mediante los siguientes comandos:
+Se instalan con estos comandos:
 
 ```bash
-
 pip install easyocr
-
 pip install transformers
-
 ```
 
 ## 3. Detección y seguimiento de objetos
 
-Para la detección de los elementos presentes en el vídeo se utiliza el modelo ****YOLO11n****, que permite identificar tres clases de objetos: personas, bicicletas, y coches.
+Para detectar los elementos que aparecen en el vídeo usamos el modelo ****YOLO11n****, que nos permite identificar tres clases de objetos: personas, bicicletas y coches.
 
-A partir de las detecciones, se realiza el seguimiento de los objetos a lo largo de los fotogramas. De esta manera, se mantiene un identificador para cada elemento y se puede seguir su movimiento durante el vídeo. Esta información también permite evitar que un mismo objeto sea contabilizado varias veces cuando aparece en diferentes fotogramas.
+Con esas detecciones seguimos a los objetos a lo largo de los fotogramas. Así, cada elemento mantiene su propio identificador y podemos ver cómo se mueve durante el vídeo. Esto también evita que un mismo objeto se cuente varias veces cuando aparece en fotogramas distintos.
 
 ## 4. Análisis del sentido de circulación
 
-Una de las funcionalidades implementadas consiste en determinar el sentido de desplazamiento de los objetos detectados.
+Una de las funcionalidades que hemos implementado consiste en saber hacia dónde se desplazan los objetos detectados.
 
-Para ello, se establecen líneas de referencia sobre el vídeo y se analiza cómo se desplazan los objetos respecto a ellas. En función de su movimiento, se clasifican como objetos que se acercan o se alejan.
+Para ello colocamos unas líneas de referencia sobre el vídeo y miramos cómo se mueven los objetos respecto a ellas. Según su movimiento, los clasificamos como objetos que se acercan o que se alejan.
 
-Se mantienen contadores independientes para personas, bicicletas y coches, permitiendo obtener un resumen del tráfico observado.
+Llevamos contadores independientes para personas, bicicletas y coches, de modo que al final tenemos un resumen del tráfico observado.
 
 [![Ver vídeo del análisis del sentido de la circulación](recursos/direccion.png)](https\://drive.google.com/file/d/1HXbJKpnTgJLuS4aB-QNzveqdSc3nuR9y/view?usp=drive_link)
 
-A partir del vídeo se puede confirmar que el conteo de personas, vehiculos y sus direcciones es correcto.
+Viendo el vídeo, podemos confirmar que el conteo de personas y vehículos, y sus direcciones, es correcto.
 
 ## 5. Detección de matrículas
 
-Para localizar las matrículas de los vehículos se han implementado dos métodos diferentes.
+Para localizar las matrículas de los vehículos hemos implementado dos métodos distintos.
 
 ### 5.1. Detección mediante YOLO entrenado
 
-Se utiliza un modelo YOLO11n como punto de partida, que posteriormente se entrena con el [dataset](https\://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link) desarrollado por los compañeros de la asignatura, que contiene un conjunto de imágenes anotadas para la detección de matrículas.
+Partimos de un modelo YOLO11n que entrenamos con el [dataset](https\://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link) creado por los compañeros de la asignatura, que contiene imágenes anotadas para la detección de matrículas.
 
-El conjunto de datos se organiza separando las imágenes en tres particiones:
+Dividimos el conjunto de datos en tres particiones:
 
-- ****Train:**** imágenes utilizadas durante el entrenamiento (70%).
+- ****Train:**** imágenes que usamos para entrenar (70%).
 
-- ****Validation:**** imágenes utilizadas para comprobar el comportamiento del modelo durante el entrenamiento (20%).
+- ****Validation:**** imágenes que usamos para comprobar cómo se comporta el modelo mientras entrena (20%).
 
-- ****Test:**** imágenes reservadas para evaluar el modelo una vez finalizado el entrenamiento (10%).
+- ****Test:**** imágenes que reservamos para evaluar el modelo cuando termina el entrenamiento (10%).
 
-El conjunto de datos contiene una única clase, denominada `matricula`.
+El conjunto de datos tiene una única clase, llamada `matricula`.
 
-La configuración utilizada durante el entrenamiento es la siguiente:
+Esta es la configuración que usamos para entrenar:
 
 | Parámetro | Valor |
 |---|---|
@@ -81,83 +78,83 @@ La configuración utilizada durante el entrenamiento es la siguiente:
 
 #### Evolución del entrenamiento
 
-Para hacernos una idea de cómo ha aprendido el modelo, vamos a fijarnos en las gráficas obtenidas durante el entrenamiento.
+Para hacernos una idea de cómo ha ido aprendiendo el modelo, vamos a fijarnos en las gráficas que salieron durante el entrenamiento.
 
 | Pérdida de localización | |
 |---|---|
-| <img src="recursos/perdida_entrenamiento.png" width="220"> | Representa el error cometido al localizar las matrículas durante el entrenamiento, comparando las cajas delimitadoras predichas con las anotaciones reales. Su descenso progresivo indica que el modelo mejora la precisión con la que delimita las matrículas. Las pequeñas fluctuaciones que aparecen durante el proceso son normales. |
+| <img src="recursos/perdida_entrenamiento.png" width="220"> | Representa el error que se comete al localizar las matrículas durante el entrenamiento, comparando las cajas que predice el modelo con las anotaciones reales. Que baje poco a poco indica que el modelo es cada vez más preciso al delimitar las matrículas. Las pequeñas fluctuaciones que aparecen por el camino son normales. |
 | Pérdida de clasificación | |
-| <img src="recursos/train clsLoss.png" width="220"> | Mide el error cometido al clasificar los objetos detectados. Se observa una caída muy pronunciada durante las primeras épocas, seguida de una reducción más gradual. Esto indica que el modelo aprende rápidamente a reconocer la clase y continúa mejorando a medida que avanza el entrenamiento. |
+| <img src="recursos/train clsLoss.png" width="220"> | Mide el error al clasificar los objetos detectados. Cae muy rápido en las primeras épocas y después baja de forma más gradual. Esto indica que el modelo aprende enseguida a reconocer la clase y que sigue mejorando a medida que avanza el entrenamiento. |
 | Distribution Focal Loss | |
-| <img src="recursos/train dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las coordenadas de las cajas delimitadoras. Su evolución descendente indica que el modelo va ajustando progresivamente la localización de las matrículas. Al igual que ocurre con box_loss, las pequeñas oscilaciones no impiden observar una tendencia de mejora. |
+| <img src="recursos/train dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las coordenadas de las cajas. Su evolución descendente indica que el modelo va ajustando cada vez mejor la posición de las matrículas. Igual que pasa con box_loss, las pequeñas oscilaciones no impiden ver una tendencia clara de mejora. |
 | Precisión | |
-| <img src="recursos/precision.png" width="220"> | Indica qué proporción de las detecciones realizadas por el modelo son correctas. La gráfica muestra un aumento progresivo hasta alcanzar valores cercanos al 0,88. Esto significa que la mayoría de las matrículas detectadas corresponden a detecciones válidas, con una proporción relativamente baja de falsos positivos. |
+| <img src="recursos/precision.png" width="220"> | Indica qué proporción de las detecciones del modelo son correctas. La gráfica sube de forma progresiva hasta valores cercanos a 0,88. Esto significa que la mayoría de las matrículas que detecta son válidas y que hay relativamente pocos falsos positivos. |
 | Exhaustividad | |
-| <img src="recursos/recall.png" width="220"> | Mide qué proporción de las matrículas presentes en las imágenes consigue detectar el modelo. Su valor aumenta progresivamente hasta situarse cerca del 0,58. Aunque muestra una evolución positiva, su diferencia respecto a la precisión indica que todavía existen matrículas reales que el modelo no consigue detectar. |
+| <img src="recursos/recall.png" width="220"> | Mide qué proporción de las matrículas que hay en las imágenes consigue detectar el modelo. Va subiendo poco a poco hasta situarse cerca de 0,58. Aunque evoluciona bien, la diferencia con la precisión nos dice que todavía hay matrículas reales que el modelo no llega a detectar. |
 | Pérdida de localización en validación | |
-| <img src="recursos/val boxLoss.png" width="220"> | Representa el error de localización obtenido al evaluar el modelo sobre el conjunto de validación, que contiene imágenes no utilizadas directamente para actualizar sus parámetros durante el entrenamiento. Su descenso indica que el modelo también mejora la localización de matrículas en estos datos. La evolución es similar a la observada en el conjunto de entrenamiento. |
+| <img src="recursos/val boxLoss.png" width="220"> | Representa el error de localización al evaluar el modelo sobre el conjunto de validación, que son imágenes que no se usan directamente para actualizar sus parámetros durante el entrenamiento. Que baje indica que el modelo también mejora al localizar matrículas en estos datos. La evolución es parecida a la del conjunto de entrenamiento. |
 | Pérdida de clasificación en validación | |
-| <img src="recursos/val clsLoss.png" width="220"> | Muestra el error de clasificación sobre el conjunto de validación. Se observa una reducción pronunciada durante las primeras épocas y un descenso más gradual posteriormente. Esta evolución refleja una mejora en la capacidad del modelo para clasificar correctamente las detecciones en imágenes diferentes a las de entrenamiento. |
+| <img src="recursos/val clsLoss.png" width="220"> | Muestra el error de clasificación sobre el conjunto de validación. Cae mucho en las primeras épocas y luego baja de forma más suave. Esto refleja que el modelo mejora su capacidad de clasificar bien las detecciones en imágenes distintas a las de entrenamiento. |
 | Distribution Focal Loss en validación | |
-| <img src="recursos/val dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las cajas delimitadoras sobre el conjunto de validación. Su tendencia descendente indica que el modelo mejora progresivamente la localización de las matrículas también en estos datos. Su comportamiento es similar al de las pérdidas de localización del entrenamiento. |
+| <img src="recursos/val dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las cajas sobre el conjunto de validación. Su tendencia a la baja indica que el modelo también va mejorando la localización de las matrículas en estos datos. Se comporta de forma parecida a las pérdidas de localización del entrenamiento. |
 | Calidad de detección (mAP@0.5) | |
-| <img src="recursos/calidad_deteccion.png" width="220"> | Evalúa el rendimiento global del detector utilizando un umbral de coincidencia IoU de 0,50 entre las cajas predichas y las reales. La gráfica muestra un crecimiento progresivo hasta alcanzar aproximadamente un 0,57. Esto indica que el modelo mejora su capacidad general para detectar matrículas a lo largo del entrenamiento. |
+| <img src="recursos/calidad_deteccion.png" width="220"> | Evalúa el rendimiento global del detector usando un umbral de coincidencia IoU de 0,50 entre las cajas predichas y las reales. La gráfica crece de forma progresiva hasta alcanzar aproximadamente 0,57. Esto indica que, a lo largo del entrenamiento, el modelo va siendo mejor detectando matrículas en general. |
 | Calidad de detección (mAP@0.5-0.95) | |
-| <img src="recursos/metrics MAP50-95.png" width="220"> | Evalúa el rendimiento utilizando distintos umbrales de coincidencia, desde 0,50 hasta 0,95, por lo que es una métrica más exigente que mAP50. Alcanza aproximadamente un 0,31 al finalizar el entrenamiento. Su valor inferior refleja la dificultad adicional de conseguir cajas delimitadoras que se ajusten con precisión a las matrículas. |
+| <img src="recursos/metrics MAP50-95.png" width="220"> | Evalúa el rendimiento con distintos umbrales de coincidencia, de 0,50 a 0,95, así que es una métrica más exigente que mAP50. Termina el entrenamiento en torno a 0,31. Que sea más baja refleja lo difícil que es conseguir cajas que se ajusten con precisión a las matrículas. |
 
 #### Conclusiones del entrenamiento
 
-Las gráficas muestran que el modelo ha aprendido de forma progresiva. El error al localizar las matrículas disminuye durante todo el entrenamiento, mientras que la precisión y la calidad de las detecciones mejoran bastante respecto a las primeras épocas. También se aprecia que las mayores mejoras se producen al principio. A partir de ahí, los resultados se van estabilizando y los avances son más pequeños. Este es el comportamiento esperado, ya que el modelo ya ha aprendido buena parte de las características que necesita para realizar las detecciones.
+Las gráficas muestran que el modelo ha ido aprendiendo de forma progresiva. El error al localizar las matrículas baja durante todo el entrenamiento, y tanto la precisión como la calidad de las detecciones mejoran bastante respecto a las primeras épocas. También se ve que las mayores mejoras llegan al principio; a partir de ahí los resultados se van estabilizando y los avances son más pequeños. Es lo esperable, ya que el modelo ya ha aprendido buena parte de lo que necesita para hacer las detecciones.
 
-Una vez terminado el entrenamiento, se utiliza el mejor modelo obtenido (`best.pt`) para realizar las detecciones.
+Cuando termina el entrenamiento, nos quedamos con el mejor modelo obtenido (`best.pt`) para hacer las detecciones.
 
 [![Ver vídeo de la detección de matrículas por entrenamiento](recursos/normal.png)](https\://drive.google.com/file/d/1fr9FyrUlhC3aFWQFUCrxtBt63apLq9d9/view?usp=drive_link)
 
-Se puede observar en el video que la detección de matriculas funciona bien cuando los coches están a una distancia razonablemnte cercana de la cámara.
+En el vídeo se ve que la detección de matrículas funciona bien cuando los coches están razonablemente cerca de la cámara.
 
 ### 5.2. Detección mediante contornos
 
-Como alternativa al modelo entrenado, se ha implementado un método de detección basado en operaciones de procesamiento de imágenes con OpenCV. En este caso, primero se localizan los coches mediante YOLO11n y, posteriormente, se analiza individualmente la región de cada vehículo para intentar localizar su matrícula.
+Como alternativa al modelo entrenado, hemos implementado un método de detección basado en procesamiento de imágenes con OpenCV. Primero localizamos los coches con YOLO11n y, después, analizamos por separado la región de cada vehículo para intentar encontrar su matrícula.
 
-El procedimiento aplicado es el siguiente:
+Estos son los pasos que seguimos:
 
-1. Se convierte la región del vehículo a escala de grises.
+1. Convertimos la región del vehículo a escala de grises.
 
-2. Se aplica un desenfoque gaussiano para reducir el ruido.
+2. Aplicamos un desenfoque gaussiano para reducir el ruido.
 
-3. Se utiliza el detector de bordes Canny para localizar los cambios de intensidad.
+3. Usamos el detector de bordes Canny para localizar los cambios de intensidad.
 
-4. Se aplica una operación morfológica de cierre para unir regiones próximas.
+4. Aplicamos una operación morfológica de cierre para unir regiones cercanas.
 
-5. Se extraen los contornos y se analizan sus dimensiones y proporciones.
+5. Extraemos los contornos y analizamos sus dimensiones y proporciones.
 
-Finalmente, se seleccionan los candidatos que cumplen determinados criterios, como el ancho, el alto, la relación de aspecto y el área.
+Por último, nos quedamos con los candidatos que cumplen ciertos criterios, como el ancho, el alto, la relación de aspecto y el área.
 
 [![Ver vídeo de la detección de matrículas por contorno](recursos/contorno.png)](https\://drive.google.com/file/d/1MFGXNq1IREiWNRUBbVmPf3CbteWJaglQ/view?usp=drive_link)
 
-Este método permite localizar muy pocas matrículas, ya que sus resultados son menos consistentes que los obtenidos mediante el modelo entrenado. Esto se debe principalmente a que otras partes del vehículo, como elementos de la carrocería o sombras, pueden presentar características geométricas similares a las de una matrícula.
+Con este método conseguimos localizar muy pocas matrículas, y sus resultados son menos consistentes que los del modelo entrenado. Esto se debe sobre todo a que otras partes del vehículo, como elementos de la carrocería o las sombras, pueden tener características geométricas parecidas a las de una matrícula.
 
-A la hora de ejecutar el programa, aparecerá una caja de texto en la que el usuario debe decidir si la detección se hará por contornos o no. Debido a este sistema de preguntas al usuario, es posible tener muchas funcionalidades diferentes en un código compacto.
+Al ejecutar el programa aparece una caja de texto en la que el usuario decide si la detección se hace por contornos o no. Gracias a este sistema de preguntas al usuario, podemos tener muchas funcionalidades distintas en un código compacto.
 
 ## 6. Anonimización de matrículas y personas
 
-También se ha incorporado una funcionalidad de anonimización que permite aplicar un desenfoque gaussiano sobre las regiones correspondientes a las matrículas y las personas detectadas. Para utilizarla, cuando el programa pregunte si se desea aplicar el análisis de contornos, se deberá responder `n`. A continuación, se preguntará si se desea anonimizar las personas y las matrículas detectadas, a lo que se deberá responder `s`.
+También hemos añadido una funcionalidad de anonimización que aplica un desenfoque gaussiano sobre las zonas de las matrículas y de las personas detectadas. Para usarla, cuando el programa pregunte si queremos aplicar el análisis de contornos, hay que responder `n`. Después preguntará si queremos anonimizar las personas y las matrículas detectadas, y ahí hay que responder `s`.
 
-Para las matrículas se utiliza el modelo entrenado, mientras que las personas se localizan mediante el modelo YOLO11n general. Una vez obtenidas las regiones correspondientes, se aplica un desenfoque gaussiano con un tamaño de kernel de 51 × 51 y una desviación estándar de 30.
+Para las matrículas usamos el modelo entrenado, mientras que a las personas las localizamos con el modelo YOLO11n general. Una vez que tenemos las regiones, les aplicamos un desenfoque gaussiano con un tamaño de kernel de 51 × 51 y una desviación estándar de 30.
 
-En el caso de las matrículas, también se relacionan las detecciones con los vehículos correspondientes. Para ello, se comprueba si el centro de la matrícula se encuentra dentro de la región delimitada por el vehículo.
+En el caso de las matrículas, además, las relacionamos con los vehículos correspondientes. Para eso comprobamos si el centro de la matrícula está dentro de la región delimitada por el vehículo.
 
-Cuando se detectan varias matrículas asociadas a un mismo coche, se selecciona la que presenta una mayor confianza.
+Cuando hay varias matrículas asociadas a un mismo coche, nos quedamos con la que tiene mayor confianza.
 
 [![Ver vídeo de anonimización de coches y personas](recursos/blur.png)](https\://drive.google.com/file/d/17tH8DFem0tviKMhNdJ4toys-J3yxdseT/view?usp=drive_link)
 
-Se puede observar en el vídeo que la anonimización es indiscutible. Si se detecta un objeto, se le aplica automáticamente un desenfoque gaussiano y por lo tanto, la funcionalidad es efectiva.
+En el vídeo se ve que la anonimización es indiscutible: si se detecta un objeto, se le aplica automáticamente un desenfoque gaussiano, así que la funcionalidad es efectiva.
 
 ## 7. Archivo CSV
 
-Cuando se utiliza el método de detección de matrículas mediante YOLO, se genera el archivo `C0142_resultados.csv`.
+Cuando usamos el método de detección de matrículas con YOLO, se genera el archivo `C0142_resultados.csv`.
 
-Este archivo recoge información de las detecciones realizadas durante el procesamiento del vídeo, incluyendo:
+Este archivo recoge información de las detecciones hechas mientras se procesa el vídeo, en concreto:
 
 - Número de fotograma.
 
@@ -171,51 +168,51 @@ Este archivo recoge información de las detecciones realizadas durante el proces
 
 - Información asociada a la matrícula localizada.
 
-El archivo permite conservar los resultados del procesamiento para su posterior consulta y análisis, y puede ser consultado [aquí](P4/C0142_resultados.csv).
+Así conservamos los resultados del procesamiento para consultarlos y analizarlos más adelante. Se puede ver [aquí](P4/C0142_resultados.csv).
 
-Al realizar una inspección sobre el documento, se observa que sólo consigue detectar correctamente 2 matrículas.
+Al revisar el documento, vemos que solo consigue detectar correctamente 2 matrículas.
 
 ## 8. – Reconocimiento de caracteres en matrículas
 
 ### 8.1. Reconocimiento de matrículas mediante EasyOCR
 
-Una vez tenemos el detector entrenado, lo incorporamos al procesamiento del [vídeo de tráfico](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). El objetivo es que, cuando se localice una matrícula, podamos extraer su contenido y mostrarlo sobre el propio vídeo.
+Una vez que tenemos el detector entrenado, lo incorporamos al procesamiento del [vídeo de tráfico](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). La idea es que, cuando se localice una matrícula, podamos extraer su contenido y mostrarlo sobre el propio vídeo.
 
-Para ello, se mantiene el detector general de objetos y el seguimiento de vehículos utilizados en la primera parte. Además, se utiliza el modelo YOLO entrenado para localizar las matrículas en cada fotograma.
+Para ello mantenemos el detector general de objetos y el seguimiento de vehículos de la primera parte, y además usamos el modelo YOLO entrenado para localizar las matrículas en cada fotograma.
 
-Cuando se encuentra una matrícula, se recorta la región y se prepara la imagen antes de enviarla a EasyOCR. En esta preparación se realizan los siguientes pasos:
+Cuando encontramos una matrícula, recortamos la región y preparamos la imagen antes de pasársela a EasyOCR. Esta preparación consta de los siguientes pasos:
 
-1. Se convierte el recorte a escala de grises para trabajar con la información de intensidad de la imagen.
+1. Convertimos el recorte a escala de grises para trabajar con la información de intensidad de la imagen.
 
-2. Se amplía cinco veces mediante interpolación cúbica, con la intención de facilitar la lectura de los caracteres.
+2. Lo ampliamos cinco veces con interpolación cúbica, para facilitar la lectura de los caracteres.
 
-3. Se mejora el contraste utilizando CLAHE, para intentar distinguir mejor los caracteres del fondo.
+3. Mejoramos el contraste con CLAHE, para intentar distinguir mejor los caracteres del fondo.
 
-4. Se envía el resultado a EasyOCR, limitando los caracteres posibles a números y letras mayúsculas.
+4. Enviamos el resultado a EasyOCR, limitando los caracteres posibles a números y letras mayúsculas.
 
-EasyOCR puede devolver varias lecturas para un mismo recorte. Cuando ocurre esto, se selecciona la que tiene una confianza mayor. El texto reconocido se muestra sobre el vídeo junto a la matrícula detectada.
+EasyOCR puede devolver varias lecturas para un mismo recorte. Cuando pasa esto, nos quedamos con la que tiene más confianza. El texto reconocido se muestra sobre el vídeo, junto a la matrícula detectada.
 
-El resultado se guarda en un vídeo, donde se pueden observar los vehículos, las matrículas y el texto. Además, se genera el archivo [`C0142_resultados_Ocr.csv`](P4b/C0142_resultados_Ocr.csv), que recoge información de las detecciones, como el fotograma, el tipo de objeto, la confianza, el identificador de seguimiento, las coordenadas y, cuando corresponde, el texto leído de la matrícula.
+El resultado se guarda en un vídeo en el que se ven los vehículos, las matrículas y el texto. Además, se genera el archivo [`C0142_resultados_Ocr.csv`](P4b/C0142_resultados_Ocr.csv), que recoge información de las detecciones, como el fotograma, el tipo de objeto, la confianza, el identificador de seguimiento, las coordenadas y, cuando corresponde, el texto leído de la matrícula.
 
 [![Ver vídeo del resultado de detección de matrículas con EasyOCR](recursos/video_ocr.png)](https\://drive.google.com/file/d/1OGcTvxMkdin4ORqLh6psXltF3jeOfmgq/view?usp=drive_link)
 
-En el vídeo se puede observar que en la mayoría de casos no se llega a interpretar correctamente el texto de las matrículas.
+En el vídeo se ve que, en la mayoría de los casos, no se llega a interpretar bien el texto de las matrículas.
 
-### 8.2. Preparación del conjunto ara la evaluación OCR
+### 8.2. Preparación del conjunto para la evaluación OCR
 
-Para comparar los dos modelos OCR necesitamos utilizar imágenes cuyo contenido real se conozca. Por eso, se preparó un dataset más pequeño, 975 recortes de matriculas, a partir de las imágenes y anotaciones JSON de un conjunto de datos creado por la clase ya nombrado anteriormente, [acceso](https\://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link).
+Para comparar los dos modelos OCR necesitamos imágenes cuyo contenido real conozcamos. Por eso preparamos un dataset más pequeño, con 975 recortes de matrículas, a partir de las imágenes y las anotaciones JSON del conjunto de datos creado por la clase que ya hemos mencionado ([acceso](https\://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link)).
 
-Lo importante es que tanto EasyOCR como SmolVLM se evalúan utilizando exactamente estos mismos recortes y las mismas referencias.
+Lo importante es que tanto EasyOCR como SmolVLM se evalúan con exactamente estos mismos recortes y las mismas referencias.
 
-El archivo [`matriculas_reales.csv`](P4b/matriculas_reales.csv) contiene la información de los recortes y las matrículas reales utilizadas durante la evaluación.
+El archivo [`matriculas_reales.csv`](P4b/matriculas_reales.csv) contiene la información de los recortes y de las matrículas reales que usamos en la evaluación.
 
 ### 8.3. Evaluación de EasyOCR
 
-El primer modelo que se evalúa es ****EasyOCR****, una herramienta que reconoce caracteres y extrae texto directamente de una imagen.
+El primer modelo que evaluamos es ****EasyOCR****, una herramienta que reconoce caracteres y extrae texto directamente de una imagen.
 
-Se procesa cada uno de los 975 recortes y se compara el texto obtenido con la matrícula real. Además de comprobar si la lectura es correcta, se mide el tiempo.
+Procesamos cada uno de los 975 recortes y comparamos el texto obtenido con la matrícula real. Además de comprobar si la lectura es correcta, medimos el tiempo.
 
-Los resultados obtenidos son los siguientes:
+Estos son los resultados:
 
 | Métrica | Resultado |
 |---|---:|
@@ -228,19 +225,19 @@ Los resultados obtenidos son los siguientes:
 | Tiempo total | 30,78 s |
 | Tiempo medio por imagen | ****31,57 ms**** |
 
-Viendo estos resultados, se puede observar que EasyOCR solo logra reconocer correctamente 259 de las 975 matrículas. Esto supone un ****26,56 % de aciertos exactos****, por lo que en bastantes imágenes se equivoca en uno o varios caracteres. También hay que tener en cuenta que 118 predicciones están vacías.
+Con estos números vemos que EasyOCR solo consigue reconocer correctamente 259 de las 975 matrículas. Eso es un ****26,56 % de aciertos exactos****, así que en bastantes imágenes se equivoca en uno o varios caracteres. Además, hay que tener en cuenta que 118 predicciones están vacías.
 
-Para valorar los errores de una forma más detallada se utiliza el ****Character Error Rate (CER)****. Esta métrica compara los caracteres reconocidos con los reales y tiene en cuenta los caracteres sustituidos, insertados o eliminados. Cuanto menor sea el CER, mejor es el resultado. En este caso se obtiene un ****45,77 %****, lo que refleja las dificultades que ha tenido EasyOCR para leer correctamente las matrículas.
+Para valorar los errores con más detalle usamos el ****Character Error Rate (CER)****. Esta métrica compara los caracteres reconocidos con los reales y tiene en cuenta los que se han sustituido, insertado o eliminado. Cuanto menor es el CER, mejor es el resultado. Aquí obtenemos un ****45,77 %****, lo que refleja lo que le ha costado a EasyOCR leer bien las matrículas.
 
-Donde sí destaca claramente es en la velocidad. Procesar los 975 recortes le lleva aproximadamente 31 segundos, con una media de apenas 31,57 milisegundos por imagen. Por tanto, aunque sus resultados de reconocimiento no son especialmente buenos, es un modelo muy rápido.
+Donde sí destaca claramente es en la velocidad. Procesar los 975 recortes le lleva unos 31 segundos, con una media de apenas 31,57 milisegundos por imagen. Así que, aunque sus resultados de reconocimiento no son especialmente buenos, es un modelo muy rápido.
 
 ### 8.4. Evaluación de SmolVLM
 
-Como alternativa a EasyOCR, se prueba ****SmolVLM-256M-Instruct****, un VLM con 256 millones de parámetros, la versión pequeña de SmolVLM. A diferencia de un OCR tradicional, este modelo puede interpretar el contenido de una imagen y responder a una instrucción sobre ella.
+Como alternativa a EasyOCR probamos ****SmolVLM-256M-Instruct****, un VLM de 256 millones de parámetros, la versión pequeña de SmolVLM. A diferencia de un OCR tradicional, este modelo puede interpretar el contenido de una imagen y responder a una instrucción sobre ella.
 
-En este caso, se le proporciona cada recorte junto con una indicación (`prompt`) para que identifique los caracteres de la matrícula y devuelva el texto reconocido.
+En este caso le damos cada recorte junto con una indicación (`prompt`) para que identifique los caracteres de la matrícula y nos devuelva el texto reconocido.
 
-Los resultados obtenidos son los siguientes:
+Estos son los resultados:
 
 | Métrica | Resultado |
 |---|---:|
@@ -255,19 +252,19 @@ Los resultados obtenidos son los siguientes:
 | Tiempo total | 27 min 18 s |
 | Tiempo medio por imagen | ****1,68 s**** |
 
-En este caso, los resultados de reconocimiento mejoran bastante. SmolVLM consigue leer correctamente 587 matrículas, lo que supone un ****60,21 % de aciertos exactos****. Son 328 matrículas más que las reconocidas correctamente por EasyOCR, utilizando exactamente las mismas imágenes.
+Aquí el reconocimiento mejora bastante. SmolVLM lee correctamente 587 matrículas, un ****60,21 % de aciertos exactos****. Son 328 matrículas más que las que reconoce bien EasyOCR con exactamente las mismas imágenes.
 
-La diferencia también se aprecia en el CER, que baja hasta el ****15,58 %****. Esto significa que las predicciones contienen bastantes menos errores de caracteres y se acercan más al texto real.
+La diferencia también se nota en el CER, que baja hasta el ****15,58 %****. Es decir, sus predicciones tienen bastantes menos errores de caracteres y se parecen mucho más al texto real.
 
-El principal inconveniente aparece al medir el tiempo. Procesar las 975 imágenes requiere ****27 minutos y 18 segundos****, con una media de 1,68 segundos por recorte. Es un tiempo considerablemente mayor que el de EasyOCR, por lo que la mejora en reconocimiento tiene un coste importante en velocidad.
+El gran inconveniente aparece al medir el tiempo. Procesar las 975 imágenes lleva ****27 minutos y 18 segundos****, con una media de 1,68 segundos por recorte. Es bastante más que EasyOCR, así que la mejora en el reconocimiento se paga con un coste importante en velocidad.
 
 ### 8.5. Comparación de resultados
 
-Para valorar las diferencias nos fijamos principalmente en tres aspectos:
+Para valorar las diferencias nos fijamos sobre todo en tres aspectos:
 
-- ****Exact Match:**** indica el porcentaje de matrículas reconocidas completamente y sin ningún carácter incorrecto. Cuanto mayor sea, mejor.
+- ****Exact Match:**** indica el porcentaje de matrículas reconocidas por completo y sin ningún carácter incorrecto. Cuanto mayor sea, mejor.
 
-- ****CER:**** mide los errores cometidos al comparar los caracteres reconocidos con los reales. En este caso, interesa que sea lo más bajo posible.
+- ****CER:**** mide los errores que se cometen al comparar los caracteres reconocidos con los reales. Aquí interesa que sea lo más bajo posible.
 
 - ****Tiempo medio de inferencia:**** indica cuánto tarda cada modelo en procesar un recorte. Cuanto menor sea, más rápido es.
 
@@ -286,7 +283,7 @@ Para valorar las diferencias nos fijamos principalmente en tres aspectos:
 
 #### Comparación gráfica
 
-Las siguientes gráficas permiten ver de forma más clara las diferencias entre ambos modelos en cuanto a aciertos exactos, errores por carácter y tiempo de procesamiento.
+Las siguientes gráficas dejan ver con más claridad las diferencias entre los dos modelos en aciertos exactos, errores por carácter y tiempo de procesamiento.
 
 ****Exact Match****
 
@@ -302,19 +299,19 @@ Las siguientes gráficas permiten ver de forma más clara las diferencias entre 
 
 #### Análisis de los resultados
 
-La diferencia más importante está en el reconocimiento de las matrículas completas. SmolVLM alcanza un Exact Match del ****60,21 %****, mientras que EasyOCR se queda en el ****26,56 %****. Esto supone una diferencia del 33,65%.
+La diferencia más importante está en el reconocimiento de matrículas completas. SmolVLM alcanza un Exact Match del ****60,21 %****, mientras que EasyOCR se queda en el ****26,56 %****. Eso supone una diferencia del 33,65 %.
 
-También hay una diferencia considerable en el CER. SmolVLM obtiene un 15,58 %, frente al 45,77 % de EasyOCR. Por tanto, no solo consigue más lecturas exactas, sino que, en general, también comete menos errores al reconocer los caracteres.
+También hay una diferencia considerable en el CER: SmolVLM obtiene un 15,58 %, frente al 45,77 % de EasyOCR. Por tanto, no solo consigue más lecturas exactas, sino que en general comete menos errores al reconocer los caracteres.
 
-Sin embargo, cuando miramos los tiempos ocurre justo lo contrario. EasyOCR necesita una media de 31,57 milisegundos por imagen, mientras que SmolVLM tarda 1,68 segundos. En definitiva, SmolVLM tardará muchísimo más en procesar cada recorte.
+Sin embargo, con los tiempos pasa justo lo contrario. EasyOCR necesita una media de 31,57 milisegundos por imagen, mientras que SmolVLM tarda 1,68 segundos. En definitiva, SmolVLM tarda muchísimo más en procesar cada recorte.
 
-EasyOCR es mucho más rápido, pero tiene bastantes dificultades para leer correctamente las matrículas de este conjunto de imágenes. SmolVLM obtiene resultados de reconocimiento mucho mejores, pero su tiempo de procesamiento es mucho mayor.
+EasyOCR es mucho más rápido, pero le cuesta bastante leer bien las matrículas de este conjunto de imágenes. SmolVLM da resultados de reconocimiento mucho mejores, pero a cambio tarda mucho más.
 
-Por tanto, no hay un ganador absoluto en esta comparación. Si lo más importante es procesar muchas imágenes rápidamente, EasyOCR es más adecuado. Mientras que si se prioriza conseguir lecturas más correctas y se puede asumir un mayor tiempo de espera, SmolVLM da mejores resultados.
+Por eso, en esta comparación no hay un ganador absoluto. Si lo más importante es procesar muchas imágenes rápido, EasyOCR es más adecuado. En cambio, si lo que prima es conseguir lecturas más correctas y se puede asumir una espera mayor, SmolVLM da mejores resultados.
 
 #### Especificaciones del equipo
 
-Las pruebas se han realizado utilizando el siguiente equipo:
+Hicimos las pruebas con el siguiente equipo:
 
 | Componente | Especificación |
 |---|---|
@@ -328,6 +325,6 @@ Las pruebas se han realizado utilizando el siguiente equipo:
 
 [Acceso a todos los vídeos creados durante la práctica](https\://drive.google.com/drive/folders/1FJGJGkTo87uCqMuZWZ0ne6dZ1KV74765?usp=drive_link)
 
-[ChatGPT](https\://chatgpt.com/): utilizado para comprobaciones de errores ortográficos y gramaticales.
+[ChatGPT](https\://chatgpt.com/): utilizado para comprobar errores ortográficos y gramaticales.
 
-[Claude](https\://claude.ai/): utilizado para realizar resúmenes, explicaciones y ejemplos cortos sobre la documentación de los paquetes.
+[Claude](https\://claude.ai/): utilizado para hacer resúmenes, explicaciones y ejemplos cortos sobre la documentación de los paquetes.
