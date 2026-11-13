@@ -2,7 +2,7 @@
 
 ## 1. Introducción
 
-En esta práctica hemos desarrollado un sistema de visión por computador para analizar vídeos de tráfico. Lo que buscamos es detectar y seguir coches, personas, bicicletas y matrículas en este [vídeo](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). Os recomendamos hacer clic en las imágenes que aparecen a lo largo del documento, ya que llevan directamente al vídeo de cada apartado.
+En esta práctica hemos desarrollado un sistema de visión por computador para analizar vídeos de tráfico. Lo que buscamos es detectar y seguir coches, personas, bicicletas y matrículas en este [vídeo](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). Se recomienda hacer clic en las imágenes que aparecen a lo largo del documento, ya que llevan directamente al vídeo de cada apartado.
 
 Para ello usamos YOLO como modelo de detección de objetos, tanto en su versión preentrenada como en una entrenada por nosotros para localizar matrículas. Además, hemos añadido varias funcionalidades: analizar el sentido de circulación, contar los objetos detectados y anonimizar ciertas zonas de los vídeos.
 
@@ -31,7 +31,7 @@ pip install transformers
 
 ## 3. Detección y seguimiento de objetos
 
-Para detectar los elementos que aparecen en el vídeo usamos el modelo ****YOLO11n****, que nos permite identificar tres clases de objetos: personas, bicicletas y coches.
+Para detectar los elementos que aparecen en el vídeo usamos el modelo ****YOLO11n****, que hemos limitado a detectar tres clases de objetos: personas, bicicletas y coches.
 
 Con esas detecciones seguimos a los objetos a lo largo de los fotogramas. Así, cada elemento mantiene su propio identificador y podemos ver cómo se mueve durante el vídeo. Esto también evita que un mismo objeto se cuente varias veces cuando aparece en fotogramas distintos.
 
@@ -78,7 +78,7 @@ Esta es la configuración que usamos para entrenar:
 
 #### Evolución del entrenamiento
 
-Para hacernos una idea de cómo ha ido aprendiendo el modelo, vamos a fijarnos en las gráficas que salieron durante el entrenamiento.
+Para hacernos una idea de cómo ha ido aprendiendo el modelo, vamos a fijarnos en las gráficas que se obtuvieron durante el entrenamiento.
 
 | Pérdida de localización | |
 |---|---|
@@ -114,7 +114,7 @@ En el vídeo se ve que la detección de matrículas funciona bien cuando los coc
 
 ### 5.2. Detección mediante contornos
 
-Como alternativa al modelo entrenado, hemos implementado un método de detección basado en procesamiento de imágenes con OpenCV. Primero localizamos los coches con YOLO11n y, después, analizamos por separado la región de cada vehículo para intentar encontrar su matrícula.
+Como alternativa al modelo entrenado, hemos implementado un método de detección basado en contornos. Primero localizamos los coches con YOLO11n y, después, analizamos por separado la región de cada vehículo para intentar encontrar su matrícula.
 
 Estos son los pasos que seguimos:
 
@@ -328,3 +328,5 @@ Hicimos las pruebas con el siguiente equipo:
 [ChatGPT](https\://chatgpt.com/): utilizado para comprobar errores ortográficos y gramaticales.
 
 [Claude](https\://claude.ai/): utilizado para hacer resúmenes, explicaciones y ejemplos cortos sobre la documentación de los paquetes.
+
+[Acceso al dataset de matrículas](https://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link)
