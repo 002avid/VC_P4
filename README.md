@@ -32,13 +32,13 @@ pip install transformers
 
 ```
 
-## 2. Detección y seguimiento de objetos
+## 3. Detección y seguimiento de objetos
 
 Para la detección de los elementos presentes en el vídeo se utiliza el modelo ****YOLO11n****, que permite identificar tres clases de objetos: personas, bicicletas, y coches.
 
 A partir de las detecciones, se realiza el seguimiento de los objetos a lo largo de los fotogramas. De esta manera, se mantiene un identificador para cada elemento y se puede seguir su movimiento durante el vídeo. Esta información también permite evitar que un mismo objeto sea contabilizado varias veces cuando aparece en diferentes fotogramas.
 
-## 3. Análisis del sentido de circulación
+## 4. Análisis del sentido de circulación
 
 Una de las funcionalidades implementadas consiste en determinar el sentido de desplazamiento de los objetos detectados.
 
@@ -50,11 +50,11 @@ Se mantienen contadores independientes para personas, bicicletas y coches, permi
 
 A partir del vídeo se puede confirmar que el conteo de personas, vehiculos y sus direcciones es correcto.
 
-## 4. Detección de matrículas
+## 5. Detección de matrículas
 
 Para localizar las matrículas de los vehículos se han implementado dos métodos diferentes.
 
-### 4.1. Detección mediante YOLO entrenado
+### 5.1. Detección mediante YOLO entrenado
 
 Se utiliza un modelo YOLO11n como punto de partida, que posteriormente se entrena con el [dataset](https\://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link) desarrollado por los compañeros de la asignatura, que contiene un conjunto de imágenes anotadas para la detección de matrículas.
 
@@ -81,15 +81,35 @@ La configuración utilizada durante el entrenamiento es la siguiente:
 
 #### Evolución del entrenamiento
 
-Para hacernos una idea de cómo ha aprendido el modelo, vamos a fijarnos en tres gráficas obtenidas durante el entrenamiento.
+Para hacernos una idea de cómo ha aprendido el modelo, vamos a fijarnos en las gráficas obtenidas durante el entrenamiento.
 
-| Pérdida de entrenamiento | |
+| Pérdida de localización | |
 |---|---|
-| <img src="recursos/perdida_entrenamiento.png" width="220"> | Esta gráfica muestra el error que comete el modelo al localizar las matrículas. Concretamente, `box_loss` mide la diferencia entre las cajas que predice y las que aparecen en las anotaciones reales, teniendo en cuenta su posición y tamaño. Al principio el valor se encuentra alrededor de 2,0 y va bajando poco a poco hasta situarse cerca de 1,2. Esta evolución es natural, ya que el modelo va ajustando mejor la posición y las dimensiones de las matrículas con cada época. Además, la curva sigue bajando hasta la última época, aunque las mejoras son más pequeñas que al principio. |
-| ****Precisión**** | |
-| <img src="recursos/precision.png" width="220"> | La precisión indica qué parte de las detecciones realizadas por el modelo son realmente matrículas. Por ejemplo, un valor de 0,85 significa que aproximadamente el 85 % de las detecciones son correctas. En la gráfica se aprecia una mejora bastante rápida durante las primeras épocas, se pasa de valores cercanos a 0,57 a superar el 0,8. Después aparecen algunas oscilaciones, pero la tendencia sigue siendo ascendente y termina alrededor de 0,87. Esto demuestra que el modelo ha aprendido a evitar mejor las detecciones falsas y que, cuando señala una posible matrícula, cada vez es más probable que haya acertado. |
-| ****Calidad de detección (mAP@0.5)**** | |
-| <img src="recursos/calidad_deteccion.png" width="220"> | Esta métrica permite valorar la calidad general de las detecciones. Para calcularla se tiene en cuenta si el modelo encuentra las matrículas y si las cajas que dibuja coinciden suficientemente con las anotaciones reales. En concreto, se considera que una detección es correcta cuando la coincidencia entre ambas cajas (IoU) es de al menos un 50 %. En la gráfica se observa una mejora progresiva, especialmente al principio, hasta que los valores empiezan a estabilizarse. Esto indica que el modelo ha ido mejorando tanto al encontrar las matrículas como al delimitar su posición. |
+| <img src="recursos/perdida_entrenamiento.png" width="220"> | Representa el error cometido al localizar las matrículas durante el entrenamiento. Su descenso progresivo indica que el modelo mejora la precisión de las cajas delimitadoras. |
+| Pérdida de clasificación | |
+|---|---|
+| <img src="recursos/train clsLoss.png" width="220"> | Mide el error al clasificar los objetos detectados. Disminuye rápidamente durante las primeras épocas y continúa reduciéndose progresivamente. |
+| Distribution Focal Loss | |
+|---|---|
+| <img src="recursos/train dflLoss.png" width="220"> | Mide el error relacionado con la precisión de las coordenadas de las cajas delimitadoras. Su descenso indica una mejora progresiva en la localización de las matrículas. |
+| Precisión | |
+| <img src="recursos/precision.png" width="220"> | Mide qué proporción de las detecciones realizadas por el modelo son correctas. Aumenta progresivamente hasta alcanzar valores cercanos al 0,88, lo que indica una baja proporción de falsas detecciones. |
+| Exhaustividad | |
+|---|---|
+| <img src="recursos/recall.png" width="220"> | Mide qué proporción de las matrículas reales consigue detectar el modelo. Mejora durante el entrenamiento, aunque se mantiene por debajo de la precisión, indicando que todavía se escapan algunas matrículas. |
+| Pérdida de localización en validación | |
+|---|---|
+| <img src="recursos/val boxLoss.png" width="220"> | Representa el error de localización sobre las imágenes de validación. Su tendencia descendente indica que el modelo mejora su capacidad de localizar matrículas en imágenes que no utiliza para entrenar. |
+| Pérdida de clasificación en validación | |
+|---|---|
+| <img src="recursos/val clsLoss.png" width="220"> | Muestra el error de clasificación sobre el conjunto de validación. Disminuye progresivamente, siguiendo una evolución similar a la pérdida de clasificación del entrenamiento. |
+| Distribution Focal Loss en validación | |
+|---|---|
+| <img src="recursos/val dflLoss.png" width="220"> | Mide el error en la precisión de las cajas delimitadoras sobre el conjunto de validación. Su reducción indica una mejora en la localización de las matrículas. |
+| Calidad de detección (mAP@0.5) | |
+| <img src="recursos/calidad_deteccion.png" width="220"> | Evalúa el rendimiento global del detector utilizando un umbral de coincidencia IoU de 0,50. Su aumento progresivo refleja una mejora en la capacidad general de detección. |
+| Calidad de detección (mAP@0.5-0.95) | |
+| <img src="recursos/metrics MAP50-95.png" width="220"> | Evalúa el rendimiento utilizando distintos umbrales de coincidencia, desde 0,50 hasta 0,95. Es una métrica más exigente que mAP50 y permite valorar con mayor precisión la calidad de las detecciones. |
 
 #### Conclusiones del entrenamiento
 
@@ -101,7 +121,7 @@ Una vez terminado el entrenamiento, se utiliza el mejor modelo obtenido (`best.p
 
 Se puede observar en el video que la detección de matriculas funciona bien cuando los coches están a una distancia razonablemnte cercana de la cámara.
 
-### 4.2. Detección mediante contornos
+### 5.2. Detección mediante contornos
 
 Como alternativa al modelo entrenado, se ha implementado un método de detección basado en operaciones de procesamiento de imágenes con OpenCV. En este caso, primero se localizan los coches mediante YOLO11n y, posteriormente, se analiza individualmente la región de cada vehículo para intentar localizar su matrícula.
 
@@ -125,7 +145,7 @@ Este método permite localizar muy pocas matrículas, ya que sus resultados son 
 
 A la hora de ejecutar el programa, aparecerá una caja de texto en la que el usuario debe decidir si la detección se hará por contornos o no. Debido a este sistema de preguntas al usuario, es posible tener muchas funcionalidades diferentes en un código compacto.
 
-## 5. Anonimización de matrículas y personas
+## 6. Anonimización de matrículas y personas
 
 También se ha incorporado una funcionalidad de anonimización que permite aplicar un desenfoque gaussiano sobre las regiones correspondientes a las matrículas y las personas detectadas. Para utilizarla, cuando el programa pregunte si se desea aplicar el análisis de contornos, se deberá responder `n`. A continuación, se preguntará si se desea anonimizar las personas y las matrículas detectadas, a lo que se deberá responder `s`.
 
@@ -139,7 +159,7 @@ Cuando se detectan varias matrículas asociadas a un mismo coche, se selecciona 
 
 Se puede observar en el vídeo que la anonimización es indiscutible. Si se detecta un objeto, se le aplica automáticamente un desenfoque gaussiano y por lo tanto, la funcionalidad es efectiva.
 
-## 6. Archivo CSV
+## 7. Archivo CSV
 
 Cuando se utiliza el método de detección de matrículas mediante YOLO, se genera el archivo `C0142_resultados.csv`.
 
@@ -161,9 +181,9 @@ El archivo permite conservar los resultados del procesamiento para su posterior 
 
 Al realizar una inspección sobre el documento, se observa que sólo consigue detectar correctamente 2 matrículas.
 
-## 7. – Reconocimiento de caracteres en matrículas
+## 8. – Reconocimiento de caracteres en matrículas
 
-### 7.1. Reconocimiento de matrículas mediante EasyOCR
+### 8.1. Reconocimiento de matrículas mediante EasyOCR
 
 Una vez tenemos el detector entrenado, lo incorporamos al procesamiento del [vídeo de tráfico](https\://drive.google.com/file/d/13_jrGrxRbnmeE6TLGrElZA5Xu7BUczPr/view?usp=drive_link). El objetivo es que, cuando se localice una matrícula, podamos extraer su contenido y mostrarlo sobre el propio vídeo.
 
@@ -187,15 +207,15 @@ El resultado se guarda en un vídeo, donde se pueden observar los vehículos, la
 
 En el vídeo se puede observar que en la mayoría de casos no se llega a interpretar correctamente el texto de las matrículas.
 
-### 7.2. Preparación del conjunto ara la evaluación OCR
+### 8.2. Preparación del conjunto ara la evaluación OCR
 
 Para comparar los dos modelos OCR necesitamos utilizar imágenes cuyo contenido real se conozca. Por eso, se preparó un dataset más pequeño, 975 recortes de matriculas, a partir de las imágenes y anotaciones JSON de un conjunto de datos creado por la clase ya nombrado anteriormente, [acceso](https\://drive.google.com/drive/folders/1RFd6sKH_QMQcpE_w5rWmy8rKiYUY5_SI?usp=drive_link).
 
-Lo importante es que tanto EasyOCR como SmolVLM se evalúan utilizando exactamente estos mismos recortes y las mismas referencias.&#x20;
+Lo importante es que tanto EasyOCR como SmolVLM se evalúan utilizando exactamente estos mismos recortes y las mismas referencias.
 
 El archivo [`matriculas_reales.csv`](P4b/matriculas_reales.csv) contiene la información de los recortes y las matrículas reales utilizadas durante la evaluación.
 
-### 7.3. Evaluación de EasyOCR
+### 8.3. Evaluación de EasyOCR
 
 El primer modelo que se evalúa es ****EasyOCR****, una herramienta que reconoce caracteres y extrae texto directamente de una imagen.
 
@@ -220,7 +240,7 @@ Para valorar los errores de una forma más detallada se utiliza el ****Character
 
 Donde sí destaca claramente es en la velocidad. Procesar los 975 recortes le lleva aproximadamente 31 segundos, con una media de apenas 31,57 milisegundos por imagen. Por tanto, aunque sus resultados de reconocimiento no son especialmente buenos, es un modelo muy rápido.
 
-### 7.4. Evaluación de SmolVLM
+### 8.4. Evaluación de SmolVLM
 
 Como alternativa a EasyOCR, se prueba ****SmolVLM-256M-Instruct****, un VLM con 256 millones de parámetros, la versión pequeña de SmolVLM. A diferencia de un OCR tradicional, este modelo puede interpretar el contenido de una imagen y responder a una instrucción sobre ella.
 
@@ -247,7 +267,7 @@ La diferencia también se aprecia en el CER, que baja hasta el ****15,58 %****. 
 
 El principal inconveniente aparece al medir el tiempo. Procesar las 975 imágenes requiere ****27 minutos y 18 segundos****, con una media de 1,68 segundos por recorte. Es un tiempo considerablemente mayor que el de EasyOCR, por lo que la mejora en reconocimiento tiene un coste importante en velocidad.
 
-### 7.5. Comparación de resultados
+### 8.5. Comparación de resultados
 
 Para valorar las diferencias nos fijamos principalmente en tres aspectos:
 
