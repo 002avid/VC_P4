@@ -14,15 +14,18 @@ Durante la realización se aprovecha el detector YOLO desarrollado anteriormente
 
 ## 2. Instalaciones necesarias
 
-Para ejecutar los cuadernos del proyecto es necesario disponer de Python y Jupyter Notebook, además de instalar las librerías utilizadas para el procesamiento de imágenes, detección de objetos y reconocimiento de matrículas.
+Es necesario instalar algunas librerías adicionales con respecto a los entornos indicados en los [README de la práctica 4](https://github.com/otsedom/otsedom.github.io/tree/main/VC/P4) y de la [práctica 4b](https://github.com/otsedom/otsedom.github.io/tree/main/VC/P4b), proporcionados por el profesor.
+
+En concreto, para ejecutar todos los apartados de la práctica se necesitan las siguientes dependencias:
+
+- **EasyOCR:** para realizar el reconocimiento de caracteres en las matrículas mediante OCR.
+- **Transformers:** para cargar y utilizar el modelo SmolVLM.
+
+Se pueden instalar mediante los siguientes comandos:
 
 ```bash
-conda create --name VC_P4 python=3.9.5
-conda activate VC_P4
-pip install ultralytics
-pip install lap
-pip install transformers
 pip install easyocr
+pip install transformers
 ```
 
 ## 2. Detección y seguimiento de objetos
